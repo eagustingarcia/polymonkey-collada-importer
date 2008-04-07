@@ -86,11 +86,11 @@ public class ColladaModel implements PConstants {
 
 		debug.enabled = true;
 
-		String message[] = { "Processing Collada Loader",
-				"matt ditton AKA polymonkey",
-				"matt@polymonkey.com",
-				"version 004", 
-		"30/03/08" };
+		String message[] = {"Processing Collada Loader",
+							"matt ditton AKA polymonkey",
+							"matt@polymonkey.com",
+							"version 004", 
+							"07/04/08" };
 
 		debug.println(message);
 
@@ -173,8 +173,10 @@ public class ColladaModel implements PConstants {
 
 			n = (Normal3D) normVector.elementAt(t.normals);
 
+			
 			parent.normal(n.nx, n.ny, n.nz);
 
+			
 			if (m.textured && showMaterial) {
 
 				uv = (UV) uvVector.elementAt(t.uvs);
@@ -223,6 +225,7 @@ public class ColladaModel implements PConstants {
 			t = (TriangleList) triListVector.elementAt(i);
 
 			v = (Point3D) vertVector.elementAt(t.points);
+			
 			n = (Normal3D) normVector.elementAt(t.normals);
 
 			arrow(v, n, normalLength);
@@ -237,10 +240,10 @@ public class ColladaModel implements PConstants {
 
 		parent.stroke(0, 255, 255);
 
+		Normal3D[] centerN = new Normal3D[3];
+		Point3D[]  centerP = new Point3D[3];
+		
 		for (int i = 0; i < triListVector.size(); i += 3) {
-
-			Normal3D[] centerN = new Normal3D[3];
-			Point3D[] centerP = new Point3D[3];
 
 			t = (TriangleList) triListVector.elementAt(i);
 
@@ -281,7 +284,9 @@ public class ColladaModel implements PConstants {
 		int lastFolderint = fileName.lastIndexOf('/');
 
 		if (lastFolderint != -1) {
+			
 			filePath = fileName.substring(0, fileName.lastIndexOf('/')) + "/";
+			
 		}
 
 		debug.println("------------------------------------ the file path");
