@@ -57,9 +57,9 @@ public class BoundingBox{
 	  
 	  Point3D test = new Point3D();
 	  
-	  test.x = PApplet.min (a.x, b.x);
-	  test.y = PApplet.min (a.y, b.y);
-	  test.z = PApplet.min (a.z, b.z);
+	  test.x = Math.min (a.x, b.x);
+	  test.y = Math.min (a.y, b.y);
+	  test.z = Math.min (a.z, b.z);
 	  
 	  return test;
 	  
@@ -69,9 +69,9 @@ public class BoundingBox{
 	  
 	  Point3D test = new Point3D();
 	  
-	  test.x = PApplet.max (a.x, b.x);
-	  test.y = PApplet.max (a.y, b.y);
-	  test.z = PApplet.max (a.z, b.z);
+	  test.x = Math.max (a.x, b.x);
+	  test.y = Math.max (a.y, b.y);
+	  test.z = Math.max (a.z, b.z);
 	  
 	  return test;  
   }
