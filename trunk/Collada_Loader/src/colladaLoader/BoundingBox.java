@@ -18,25 +18,28 @@ public class BoundingBox{
   Point3D maxBB = new Point3D();
   Point3D centerBB = new Point3D();
   float width, height, depth;
+//  PApplet parent;
 
   BoundingBox(){
-	  
+//	  this.parent = _parent;
   }
 
-  public void setBoundingBox(Point3D[] points){
+  public void setBoundingBox(Point3D[] p){
 
-    for(int i = 0; i < points.length; i++){
+    for(int i = 0; i < p.length; i++){
 
       if(i == 0){
     	  
-    	  minBB = points[i];
-    	  maxBB = points[i];
+    	  minBB = p[i];
+    	  maxBB = p[i];
     	  
       }
       else{
-	      minBB = minSize(minBB, points[i]);
+    	  
+	      minBB = minSize(minBB, p[i]);
 	
-	      maxBB = maxSize(maxBB, points[i]);
+	      maxBB = maxSize(maxBB, p[i]);
+	      
       }
     }
     
@@ -52,32 +55,27 @@ public class BoundingBox{
 
   Point3D minSize (Point3D a, Point3D b){
 	  
-	  a.x = minSize (a.x, b.x);
-	  a.y = minSize (a.y, b.y);
-	  a.z = minSize (a.z, b.z);
+	  Point3D test = new Point3D();
 	  
-	  return a;
+	  test.x = PApplet.min (a.x, b.x);
+	  test.y = PApplet.min (a.y, b.y);
+	  test.z = PApplet.min (a.z, b.z);
+	  
+	  return test;
 	  
   }
   
   Point3D maxSize (Point3D a, Point3D b){
 	  
-	  a.x = maxSize (a.x, b.x);
-	  a.y = maxSize (a.y, b.y);
-	  a.z = maxSize (a.z, b.z);
+	  Point3D test = new Point3D();
 	  
-	  return a;  
+	  test.x = PApplet.max (a.x, b.x);
+	  test.y = PApplet.max (a.y, b.y);
+	  test.z = PApplet.max (a.z, b.z);
+	  
+	  return test;  
   }
   
-  float maxSize(float a, float b){
-	  
-	  return a = (a < b) ? b : a;
-  }
-  
- float minSize(float a, float b){
-	  
-	  return a = (a > b) ? b : a;
-  }
 
   public void draw(PApplet _parent){
 
