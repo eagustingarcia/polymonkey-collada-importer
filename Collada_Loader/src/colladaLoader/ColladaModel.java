@@ -11,10 +11,17 @@ import processing.xml.*;
  */
 
 /**
+ * TODO Support more than one material. (just like OBJ loader)
+ * correct implementation is to load all elements into data and use library_visual_scene to join it all together
+ * 
  * TODO Camera loading and drawing support
+ * 
  * TODO Lights loading and drawing
+ * 
  * TODO Animation framework system (will take a LARGE amount of work)
  */
+
+
 public class ColladaModel implements PConstants {
 
 	Vector vertVector, normVector, triListVector, uvVector;
@@ -288,7 +295,14 @@ public class ColladaModel implements PConstants {
 	// -------------------------------------------------------------------------
 	// ------------------------------------------------------ Parse XML Function
 	// -------------------------------------------------------------------------
-
+	
+	
+	/*This parseXML needs to be broken down a LOT more. 
+	 * Change to using a switch statement and then break down each NODE to it's own function.
+	 * A LOT easier to deal with. Go function crazy. Less code is better code. (unless it's crap)
+	 * Better to do this before adding any new features.
+	*/	
+	
 	void parseXML(String fileName) {
 
 		xml = new XMLElement(parent, fileName);
