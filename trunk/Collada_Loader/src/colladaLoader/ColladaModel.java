@@ -13,12 +13,12 @@ import processing.xml.*;
 /**
  * TODO Support more than one material. (just like OBJ loader)
  * correct implementation is to load all elements into data and use library_visual_scene to join it all together
- * 
  * TODO Camera loading and drawing support
- * 
  * TODO Lights loading and drawing
- * 
  * TODO Animation framework system (will take a LARGE amount of work)
+ * 
+ * google code address
+ * http://code.google.com/p/polymonkey-collada-importer/
  */
 
 
@@ -235,12 +235,14 @@ public class ColladaModel implements PConstants {
 	// -------------------------------------------------------------------------
 	// ------------------------------------------------------- Draw Face Normals
 	// -------------------------------------------------------------------------
-
+	// maybe I should bust this out to another class. do all the pre-calc and then just draw it. hmmm
+	
 	void drawFaceNormals() {
 
 		parent.stroke(0, 255, 255);
 
 		Normal3D[] centerN = new Normal3D[3];
+		
 		Point3D[]  centerP = new Point3D[3];
 		
 		for (int i = 0; i < triListVector.size(); i += 3) {
@@ -248,16 +250,19 @@ public class ColladaModel implements PConstants {
 			t = (TriangleList) triListVector.elementAt(i);
 
 			centerN[0] = (Normal3D) normVector.elementAt(t.normals);
+			
 			centerP[0] = (Point3D) vertVector.elementAt(t.points);
 
 			t = (TriangleList) triListVector.elementAt(i + 1);
 
 			centerN[1] = (Normal3D) normVector.elementAt(t.normals);
+			
 			centerP[1] = (Point3D) vertVector.elementAt(t.points);
 
 			t = (TriangleList) triListVector.elementAt(i + 2);
 
 			centerN[2] = (Normal3D) normVector.elementAt(t.normals);
+			
 			centerP[2] = (Point3D) vertVector.elementAt(t.points);
 
 			v = new Point3D(
@@ -315,8 +320,7 @@ public class ColladaModel implements PConstants {
 		String[] temp;
 
 		// -------------------------------------------------------------------------
-		// ---------------------------------- Load Triangle list into triList
-		// object
+		// ---------------------------------- Load Triangle list into triList object
 		// -------------------------------------------------------------------------
 
 		XMLElement triangles = xml.getChild("library_geometries/geometry/mesh/triangles");
@@ -360,9 +364,7 @@ public class ColladaModel implements PConstants {
 
 				XMLElement triChild = triangles.getChild(i);
 
-				// Loop through to get the semantic names. this tells us what
-				// elements
-				// the model has.
+				// Loop through to get the semantic names. this tells us what elements the model has.
 
 				String semantic = triChild.getStringAttribute("semantic");
 
@@ -682,8 +684,7 @@ public class ColladaModel implements PConstants {
 			// float a = Float.valueOf(s[3]).floatValue() * 255;
 			float a = 255;
 
-			c = ((int) (a) << 24) | ((int) (r) << 16) | ((int) (g) << 8)
-			| (int) (b);
+			c = ((int) (a) << 24) | ((int) (r) << 16) | ((int) (g) << 8) | (int) (b);
 
 		}
 
@@ -727,11 +728,13 @@ public class ColladaModel implements PConstants {
 	// -------------------------------------------------------------------------
 	// -------------------------------------------------- Change the model scale
 	// -------------------------------------------------------------------------
+	//This isn't perfect. maybe this should change to be fitToSize(int)
 
 	public void fitToSize(int x, int y, int z) {
 
 		modelScale = (PApplet.dist(0, 0, 0, x, y, z)) / (PApplet.dist(boundingBox.minBB.x, boundingBox.minBB.y, boundingBox.minBB.z, boundingBox.maxBB.x, boundingBox.maxBB.y,boundingBox.maxBB.z));
 
+		
 		normalLength = 20 / modelScale;
 
 		debug.println("------------------------------------ Model Scale");
@@ -739,6 +742,7 @@ public class ColladaModel implements PConstants {
 		debug.println();
 
 	}
+	
 
 	// -------------------------------------------------------------------------
 	// --------------------------------------------------------- Boolean Toggles
