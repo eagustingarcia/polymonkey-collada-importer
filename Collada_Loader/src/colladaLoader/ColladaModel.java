@@ -1,8 +1,14 @@
 package colladaLoader;
 
-import java.util.Vector;
+
 import processing.core.*;
 import processing.xml.*;
+import processing.opengl.*;
+import javax.media.opengl.*;
+import java.util.Vector;
+import java.nio.*;
+
+
 
 /**
  * @author Matt Ditton AKA polymonkey
@@ -39,10 +45,18 @@ public class ColladaModel implements PConstants {
 	Material m;
 
 	UV uv;
+	
+	FloatBuffer vertFB, normFB, uvFB;
+	
+	IntBuffer triListIB;
 
 	BoundingBox boundingBox;
 
 	PApplet parent;
+	
+	PGraphicsOpenGL pgl;
+	
+	GL gl;
 
 	int mode = PApplet.TRIANGLES;
 
@@ -69,6 +83,8 @@ public class ColladaModel implements PConstants {
 	public ColladaModel(PApplet parent) {
 
 		this.parent = parent;
+		
+		 
 
 		vertVector = new Vector();
 
@@ -97,10 +113,122 @@ public class ColladaModel implements PConstants {
 
 	}
 
+	public void setUpVBO()
+	{
+		
+		/*
+		 * lots of crazy temp stuff going here. 
+		 * This is not fit for human consumption. But it does work.....
+		 * 
+		 * 
+		 */
+
+		 pgl = (PGraphicsOpenGL) this.parent.g;
+		  
+		  gl = pgl.gl;
+		
+		debug.println();
+		
+		float[] tempVerts = new float[ vertVector.size() * 3];
+		
+		debug.println(">>>>>>>>---   " + tempVerts.length);
+		debug.println(">>>>>>>>---   " + vertVector.size());
+		
+		
+		int count = 0;
+		
+		Point3D p;
+		
+		for(int i = 0; i < tempVerts.length - 3; i += 3 ){
+		
+			debug.println(i + " " + count);
+			
+			p = (Point3D)vertVector.elementAt(count);	
+				
+			count++;
+			
+			tempVerts[i] = p.x;
+			tempVerts[i+1] = p.y;
+			tempVerts[i+2] = p.z;
+			
+		}
+		
+		debug.println("out");
+		
+		int[] tempVertIndex = new int[ triListVector.size() ];	
+		
+		debug.println(tempVertIndex.length);
+		
+		for(int i = 0; i < tempVertIndex.length; i ++ ){
+			
+			TriangleList t = (TriangleList) triListVector.elementAt(i);
+			
+			tempVertIndex[i] = t.points;
+			
+//			
+		}
+		
+		debug.println("one");
+		
+		vertFB = ByteBuffer.allocateDirect(4 * tempVerts.length).order( ByteOrder.nativeOrder() ).asFloatBuffer();
+		vertFB.put(tempVerts);  
+		vertFB.rewind();
+		
+		debug.println("two");
+		
+		triListIB = ByteBuffer.allocateDirect(4 * tempVertIndex.length).order( ByteOrder.nativeOrder() ).asIntBuffer();
+		triListIB.put(tempVertIndex);
+		triListIB.rewind();
+		
+		debug.println("three");
+		
+		gl.glEnableClientState(GL.GL_VERTEX_ARRAY);
+		
+		debug.println("four");
+		
+		gl.glVertexPointer(3, GL.GL_FLOAT, 0, vertFB);
+		
+		debug.println("five");
+		
+		
+		gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FLAT);
+		
+		debug.println("five");
+
+//		normFB = ByteBuffer.allocateDirect(4*normVector.size()).order(ByteOrder.nativeOrder( )).asFloatBuffer();
+//		normFB.put(normVector);  
+//		normFB.rewind();
+//		
+//		uvFB = ByteBuffer.allocateDirect(4*uvVector.size()).order(ByteOrder.nativeOrder( )).asFloatBuffer();
+//		uvFB.put(uvVector);  
+//		uvFB.rewind();
+		
+//		gl.glEnableClientState(GL.GL_NORMAL_ARRAY);
+//		gl.glNormalPointer(GL.GL_FLOAT, 0, normFB);
+//		
+//		gl.glEnableClientState(GL.GL_TEXTURE_COORD_ARRAY);
+//		gl.glColorPointer(3, GL.GL_FLOAT, 0, uvFB);
+		
+		
+	}
+	
+	
 	// -------------------------------------------------------------------------
 	// -------------------------------------------------------------------- Draw
 	// -------------------------------------------------------------------------
 
+	public void drawOPENGL(){
+		
+		pgl.beginGL();
+
+        gl.glDrawElements(GL.GL_TRIANGLES, triListVector.size(), GL.GL_UNSIGNED_INT, triListIB); 
+
+        pgl.endGL();
+		
+		
+		
+	}
+	
 	public void draw() {
 
 		parent.pushMatrix();
