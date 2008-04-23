@@ -17,9 +17,9 @@ public class Normal3D{
 
   Normal3D(float _nx, float _ny, float _nz){
 
-    nx = _nx;
-    ny = _ny;
-    nz = _nz;
+	  this.nx = _nx;
+	  this.ny = _ny;
+	  this.nz = _nz;
 
   }
 }
