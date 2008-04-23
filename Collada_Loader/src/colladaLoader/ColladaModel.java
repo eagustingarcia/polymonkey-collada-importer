@@ -33,9 +33,7 @@ public class ColladaModel implements PConstants {
 	Vector vertVector, normVector, triListVector, uvVector;
 
 	ModelGroup[] modelGroup = new ModelGroup[0];
-
-	XMLElement xml;
-
+	
 	Point3D v;
 
 	Normal3D n;
@@ -83,8 +81,6 @@ public class ColladaModel implements PConstants {
 	public ColladaModel(PApplet parent) {
 
 		this.parent = parent;
-		
-		 
 
 		vertVector = new Vector();
 
@@ -105,8 +101,9 @@ public class ColladaModel implements PConstants {
 		String message[] = {"Processing Collada Loader",
 							"matt ditton AKA polymonkey",
 							"matt@polymonkey.com",
-							"version 004", 
-							"07/04/08" };
+							"version 005", 
+							"23/04/08",
+							"http://code.google.com/p/polymonkey-collada-importer/"};
 
 		debug.println(message);
 
@@ -118,32 +115,25 @@ public class ColladaModel implements PConstants {
 		
 		/*
 		 * lots of crazy temp stuff going here. 
-		 * This is not fit for human consumption. But it does work.....
+		 * This is not fit for human consumption. But it does work..... ish
 		 * 
 		 * 
 		 */
 
 		 pgl = (PGraphicsOpenGL) this.parent.g;
 		  
-		  gl = pgl.gl;
+		 gl = pgl.gl;
 		
 		debug.println();
 		
-		float[] tempVerts = new float[ vertVector.size() * 3];
-		
-		debug.println(">>>>>>>>---   " + tempVerts.length);
-		debug.println(">>>>>>>>---   " + vertVector.size());
-		
-		
 		int count = 0;
 		
-		Point3D p;
+		//Building a float array for the verts
+		float[] tempVerts = new float[ vertVector.size() * 3];
 		
 		for(int i = 0; i < tempVerts.length - 3; i += 3 ){
-		
-			debug.println(i + " " + count);
 			
-			p = (Point3D)vertVector.elementAt(count);	
+			Point3D p = (Point3D)vertVector.elementAt(count);	
 				
 			count++;
 			
@@ -155,32 +145,35 @@ public class ColladaModel implements PConstants {
 		
 		debug.println("out");
 		
-		int[] tempVertIndex = new int[ triListVector.size() ];	
-		
-		debug.println(tempVertIndex.length);
-		
-		for(int i = 0; i < tempVertIndex.length; i ++ ){
-			
-			TriangleList t = (TriangleList) triListVector.elementAt(i);
-			
-			tempVertIndex[i] = t.points;
-			
-//			
-		}
-		
 		debug.println("one");
 		
 		vertFB = ByteBuffer.allocateDirect(4 * tempVerts.length).order( ByteOrder.nativeOrder() ).asFloatBuffer();
 		vertFB.put(tempVerts);  
 		vertFB.rewind();
+
 		
-		debug.println("two");
+		//Build an int array for the indexes
+		
+		int[] tempVertIndex = new int[ triListVector.size() ];	
+		
+		debug.println(tempVertIndex.length);
+		
+		for(int i = 0; i < triListVector.size(); i ++ ){
+			
+			TriangleList t = (TriangleList) triListVector.elementAt(i);
+
+			
+			tempVertIndex[i] = t.points;
+					
+		}
+		
 		
 		triListIB = ByteBuffer.allocateDirect(4 * tempVertIndex.length).order( ByteOrder.nativeOrder() ).asIntBuffer();
 		triListIB.put(tempVertIndex);
 		triListIB.rewind();
 		
 		debug.println("three");
+		
 		
 		gl.glEnableClientState(GL.GL_VERTEX_ARRAY);
 		
@@ -191,7 +184,7 @@ public class ColladaModel implements PConstants {
 		debug.println("five");
 		
 		
-		gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FLAT);
+		gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_SMOOTH);
 		
 		debug.println("five");
 
@@ -202,14 +195,14 @@ public class ColladaModel implements PConstants {
 //		uvFB = ByteBuffer.allocateDirect(4*uvVector.size()).order(ByteOrder.nativeOrder( )).asFloatBuffer();
 //		uvFB.put(uvVector);  
 //		uvFB.rewind();
-		
+//
 //		gl.glEnableClientState(GL.GL_NORMAL_ARRAY);
 //		gl.glNormalPointer(GL.GL_FLOAT, 0, normFB);
 //		
 //		gl.glEnableClientState(GL.GL_TEXTURE_COORD_ARRAY);
 //		gl.glColorPointer(3, GL.GL_FLOAT, 0, uvFB);
 		
-		
+
 	}
 	
 	
@@ -219,13 +212,52 @@ public class ColladaModel implements PConstants {
 
 	public void drawOPENGL(){
 		
-		pgl.beginGL();
+		parent.pushMatrix();
 
-        gl.glDrawElements(GL.GL_TRIANGLES, triListVector.size(), GL.GL_UNSIGNED_INT, triListIB); 
+		parent.scale(modelScale);
+		
+		if (showModels){
+		
+			pgl.beginGL();
 
-        pgl.endGL();
+			//gl.glColor3f(0.5f, 0.5f, 0.5f);
+			
+			if (showWireFrame) {
+				
+
+				gl.glDrawElements(GL.GL_POINTS, triListVector.size(), GL.GL_UNSIGNED_INT, triListIB); 
+
+			}
+			else{
+			
+				gl.glDrawElements(GL.GL_TRIANGLES, triListVector.size(), GL.GL_UNSIGNED_INT, triListIB); 
+				
+			}
+			
+			pgl.endGL();
+
+			
+		}
+
+		if (showVertNormals) {
+
+			drawVertexNormals();
+
+		}
+
+		if (showFaceNormals) {
+
+			drawFaceNormals();
+
+		}
+
+		if (showBoundingBox) {
+
+			drawBoundingBox();
+
+		}
 		
-		
+		parent.popMatrix();
 		
 	}
 	
@@ -442,6 +474,8 @@ public class ColladaModel implements PConstants {
 	*/	
 	
 	void parseXML(String fileName) {
+		
+		XMLElement xml;
 
 		xml = new XMLElement(parent, fileName);
 
@@ -469,6 +503,7 @@ public class ColladaModel implements PConstants {
 
 
 		try {
+			
 			boolean hasUvs = false;
 
 			//for(int j = 0; j < triangleArray.length; j++){
@@ -911,6 +946,18 @@ public class ColladaModel implements PConstants {
 	public void toggleWireFrame(){
 
 		showWireFrame = (showWireFrame) ? false : true;
+		
+		if(showWireFrame){
+			
+			gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINES);
+			
+		}
+		
+		else{
+			
+			gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_SMOOTH);
+			
+		}
 
 		debug.println("Display Wire Frame = " + showWireFrame);
 

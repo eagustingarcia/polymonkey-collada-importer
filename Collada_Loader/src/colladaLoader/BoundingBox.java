@@ -18,10 +18,10 @@ public class BoundingBox{
   Point3D maxBB = new Point3D();
   Point3D centerBB = new Point3D();
   float width, height, depth;
-//  PApplet parent;
+
 
   BoundingBox(){
-//	  this.parent = _parent;
+
   }
 
   public void setBoundingBox(Point3D[] p){

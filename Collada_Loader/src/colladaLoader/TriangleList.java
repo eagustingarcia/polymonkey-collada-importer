@@ -16,16 +16,16 @@ public class TriangleList{
 
   public TriangleList(int _points, int _normals){
 
-    points = _points;
-    normals = _normals;
+    this.points = _points;
+    this.normals = _normals;
 
   }
 
   public TriangleList(int _points, int _normals, int _uvs){
 
-    points = _points;
-    normals = _normals;
-    uvs = _uvs;
+	  this.points = _points;
+	  this.normals = _normals;
+	  this.uvs = _uvs;
 
   }
 }

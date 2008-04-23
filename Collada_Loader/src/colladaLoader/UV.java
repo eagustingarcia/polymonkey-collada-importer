@@ -16,8 +16,8 @@ public class UV{
 
    UV(float _u, float _v){
 
-    u = _u;
-    v = _v;
+	   this.u = _u;
+	   this.v = _v;
 
   }
 }
