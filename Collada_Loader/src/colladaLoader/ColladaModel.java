@@ -13,7 +13,7 @@ import java.nio.*;
 /**
  * @author Matt Ditton AKA polymonkey
  * @author matt@polymonkey.com
- * @version 004
+ * @version 005
  */
 
 /**
@@ -101,8 +101,7 @@ public class ColladaModel implements PConstants {
 		String message[] = {"Processing Collada Loader",
 							"matt ditton AKA polymonkey",
 							"matt@polymonkey.com",
-							"version 005", 
-							"23/04/08",
+							"version 005 - 23/04/08",
 							"http://code.google.com/p/polymonkey-collada-importer/"};
 
 		debug.println(message);
@@ -152,42 +151,6 @@ public class ColladaModel implements PConstants {
 		vertFB.rewind();
 
 		
-		//Build an int array for the indexes
-		
-		int[] tempVertIndex = new int[ triListVector.size() ];	
-		
-		debug.println(tempVertIndex.length);
-		
-		for(int i = 0; i < triListVector.size(); i ++ ){
-			
-			TriangleList t = (TriangleList) triListVector.elementAt(i);
-
-			
-			tempVertIndex[i] = t.points;
-					
-		}
-		
-		
-		triListIB = ByteBuffer.allocateDirect(4 * tempVertIndex.length).order( ByteOrder.nativeOrder() ).asIntBuffer();
-		triListIB.put(tempVertIndex);
-		triListIB.rewind();
-		
-		debug.println("three");
-		
-		
-		gl.glEnableClientState(GL.GL_VERTEX_ARRAY);
-		
-		debug.println("four");
-		
-		gl.glVertexPointer(3, GL.GL_FLOAT, 0, vertFB);
-		
-		debug.println("five");
-		
-		
-		gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_SMOOTH);
-		
-		debug.println("five");
-
 //		normFB = ByteBuffer.allocateDirect(4*normVector.size()).order(ByteOrder.nativeOrder( )).asFloatBuffer();
 //		normFB.put(normVector);  
 //		normFB.rewind();
@@ -202,6 +165,35 @@ public class ColladaModel implements PConstants {
 //		gl.glEnableClientState(GL.GL_TEXTURE_COORD_ARRAY);
 //		gl.glColorPointer(3, GL.GL_FLOAT, 0, uvFB);
 		
+		
+		//Build an int array for the indexes
+		
+		int[] tempVertIndex = new int[ triListVector.size() ];	
+		
+		debug.println(tempVertIndex.length);
+		
+		for(int i = 0; i < triListVector.size(); i ++ ){
+			
+			TriangleList t = (TriangleList) triListVector.elementAt(i);
+
+			tempVertIndex[i] = t.points;
+					
+		}
+		
+		
+		triListIB = ByteBuffer.allocateDirect(4 * tempVertIndex.length).order( ByteOrder.nativeOrder() ).asIntBuffer();
+		triListIB.put(tempVertIndex);
+		triListIB.rewind();
+		
+		
+		gl.glEnableClientState(GL.GL_VERTEX_ARRAY);
+		
+		gl.glVertexPointer(3, GL.GL_FLOAT, 0, vertFB);
+
+		
+		gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_SMOOTH);
+		
+		debug.println("five");
 
 	}
 	
