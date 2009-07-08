@@ -1,14 +1,11 @@
 package colladaLoader;
 
-
 import processing.core.*;
 import processing.xml.*;
 import processing.opengl.*;
 import javax.media.opengl.*;
 import java.util.Vector;
 import java.nio.*;
-
-
 
 /**
  * @author Matt Ditton AKA polymonkey
@@ -30,25 +27,25 @@ import java.nio.*;
 
 public class ColladaModel implements PConstants {
 
-	Vector vertVector, normVector, triListVector, uvVector;
+	private Vector vertVector, normVector, triListVector, uvVector;
 
 	ModelGroup[] modelGroup = new ModelGroup[0];
 	
-	Point3D v;
+	private PVector v;
 
-	Normal3D n;
+	private PVector n;
 
-	TriangleList t;
+	private TriangleList t;
 
-	Material m;
+	private Material m;
 
-	UV uv;
+	private UV uv;
 	
 	FloatBuffer vertFB, normFB, uvFB;
 	
-	IntBuffer triListIB;
+	private IntBuffer triListIB;
 
-	BoundingBox boundingBox;
+	private BoundingBox boundingBox;
 
 	PApplet parent;
 	
@@ -56,21 +53,19 @@ public class ColladaModel implements PConstants {
 	
 	GL gl;
 
-	int mode = PApplet.TRIANGLES;
+	private float normalLength = 20;
 
-	public float normalLength = 20;
+	private float modelScale = 1;
 
-	public float modelScale = 1;
+	private boolean showWireFrame, showVertNormals, showFaceNormals, showBoundingBox;
 
-	public boolean showWireFrame, showVertNormals, showFaceNormals, showBoundingBox;
+	private boolean showMaterial = true;
 
-	public boolean showMaterial = true;
+	private boolean showModels = true;
 
-	public boolean showModels = true;
+	private String filePath;
 
-	String filePath;
-
-	Debug debug;
+	private Debug debug;
 
 
 
@@ -78,9 +73,9 @@ public class ColladaModel implements PConstants {
 	// ------------------------------------------------------------- Constructor
 	// -------------------------------------------------------------------------
 
-	public ColladaModel(PApplet parent) {
+    public ColladaModel(PApplet _parent) {
 
-		this.parent = parent;
+		this.parent = _parent;
 
 		vertVector = new Vector();
 
@@ -132,7 +127,7 @@ public class ColladaModel implements PConstants {
 		
 		for(int i = 0; i < tempVerts.length - 3; i += 3 ){
 			
-			Point3D p = (Point3D)vertVector.elementAt(count);	
+			PVector p = (PVector)vertVector.elementAt(count);	
 				
 			count++;
 			
@@ -150,20 +145,37 @@ public class ColladaModel implements PConstants {
 		vertFB.put(tempVerts);  
 		vertFB.rewind();
 
+		count = 0;
 		
+		//Building a float array for the verts
+		 tempVerts = new float[ uvVector.size() * 2];
+		
+		for(int i = 0; i < tempVerts.length - 2; i += 2 ){
+			
+			UV p = (UV)uvVector.elementAt(count);	
+				
+			count++;
+			
+			tempVerts[i] = p.u;
+			tempVerts[i+1] = p.v;
+
+		}
+		
+		 
+		uvFB = ByteBuffer.allocateDirect(4 *tempVerts.length).order(ByteOrder.nativeOrder( )).asFloatBuffer();
+		uvFB.put(tempVerts);  
+		uvFB.rewind();
+		
+		gl.glEnableClientState(GL.GL_TEXTURE_COORD_ARRAY);
+		gl.glColorPointer(3, GL.GL_FLOAT, 0, uvFB);
+//		
 //		normFB = ByteBuffer.allocateDirect(4*normVector.size()).order(ByteOrder.nativeOrder( )).asFloatBuffer();
 //		normFB.put(normVector);  
 //		normFB.rewind();
-//		
-//		uvFB = ByteBuffer.allocateDirect(4*uvVector.size()).order(ByteOrder.nativeOrder( )).asFloatBuffer();
-//		uvFB.put(uvVector);  
-//		uvFB.rewind();
 //
 //		gl.glEnableClientState(GL.GL_NORMAL_ARRAY);
 //		gl.glNormalPointer(GL.GL_FLOAT, 0, normFB);
 //		
-//		gl.glEnableClientState(GL.GL_TEXTURE_COORD_ARRAY);
-//		gl.glColorPointer(3, GL.GL_FLOAT, 0, uvFB);
 		
 		
 		//Build an int array for the indexes
@@ -309,7 +321,7 @@ public class ColladaModel implements PConstants {
 
 		}
 
-		parent.beginShape(mode);
+		parent.beginShape(TRIANGLES);
 
 		if (m.textured && showMaterial) {
 
@@ -321,12 +333,12 @@ public class ColladaModel implements PConstants {
 
 			t = (TriangleList) triListVector.elementAt(i);
 
-			v = (Point3D) vertVector.elementAt(t.points);
+			v = (PVector) vertVector.elementAt(t.points);
 
-			n = (Normal3D) normVector.elementAt(t.normals);
+			n = (PVector) normVector.elementAt(t.normals);
 
 			
-			parent.normal(n.nx, n.ny, n.nz);
+			parent.normal(n.x, n.y, n.z);
 
 			
 			if (m.textured && showMaterial) {
@@ -376,9 +388,9 @@ public class ColladaModel implements PConstants {
 
 			t = (TriangleList) triListVector.elementAt(i);
 
-			v = (Point3D) vertVector.elementAt(t.points);
+			v = (PVector) vertVector.elementAt(t.points);
 			
-			n = (Normal3D) normVector.elementAt(t.normals);
+			n = (PVector) normVector.elementAt(t.normals);
 
 			arrow(v, n, normalLength);
 		}
@@ -393,39 +405,39 @@ public class ColladaModel implements PConstants {
 
 		parent.stroke(0, 255, 255);
 
-		Normal3D[] centerN = new Normal3D[3];
+		PVector[] centerN = new PVector[3];
 		
-		Point3D[]  centerP = new Point3D[3];
+		PVector[]  centerP = new PVector[3];
 		
 		for (int i = 0; i < triListVector.size(); i += 3) {
 
 			t = (TriangleList) triListVector.elementAt(i);
 
-			centerN[0] = (Normal3D) normVector.elementAt(t.normals);
+			centerN[0] = (PVector) normVector.elementAt(t.normals);
 			
-			centerP[0] = (Point3D) vertVector.elementAt(t.points);
+			centerP[0] = (PVector) vertVector.elementAt(t.points);
 
 			t = (TriangleList) triListVector.elementAt(i + 1);
 
-			centerN[1] = (Normal3D) normVector.elementAt(t.normals);
+			centerN[1] = (PVector) normVector.elementAt(t.normals);
 			
-			centerP[1] = (Point3D) vertVector.elementAt(t.points);
+			centerP[1] = (PVector) vertVector.elementAt(t.points);
 
 			t = (TriangleList) triListVector.elementAt(i + 2);
 
-			centerN[2] = (Normal3D) normVector.elementAt(t.normals);
+			centerN[2] = (PVector) normVector.elementAt(t.normals);
 			
-			centerP[2] = (Point3D) vertVector.elementAt(t.points);
+			centerP[2] = (PVector) vertVector.elementAt(t.points);
 
-			v = new Point3D(
+			v = new PVector(
 					(centerP[0].x + centerP[1].x + centerP[2].x) / 3,
 					(centerP[0].y + centerP[1].y + centerP[2].y) / 3,
 					(centerP[0].z + centerP[1].z + centerP[2].z) / 3);
 
-			n = new Normal3D(
-					(centerN[0].nx + centerN[1].nx + centerN[2].nx) / 3,
-					(centerN[0].ny + centerN[1].ny + centerN[2].ny) / 3,
-					(centerN[0].nz + centerN[1].nz + centerN[2].nz) / 3);
+			n = new PVector(
+					(centerN[0].x + centerN[1].x + centerN[2].x) / 3,
+					(centerN[0].y + centerN[1].y + centerN[2].y) / 3,
+					(centerN[0].z + centerN[1].z + centerN[2].z) / 3);
 
 			arrow(v, n, normalLength);
 
@@ -437,12 +449,18 @@ public class ColladaModel implements PConstants {
 	// -------------------------------------------------------------------------
 
 	public void load(String fileName) {
-
+		
+		debug.println(fileName);
+		
 		int lastFolderint = fileName.lastIndexOf('/');
-
+		
+		debug.println(lastFolderint);
+		
 		if (lastFolderint != -1) {
 			
 			filePath = fileName.substring(0, fileName.lastIndexOf('/')) + "/";
+			
+			debug.println(filePath);
 			
 		}
 
@@ -467,11 +485,11 @@ public class ColladaModel implements PConstants {
 	
 	void parseXML(String fileName) {
 		
-		XMLElement xml;
+		debug.println(fileName);
 
-		xml = new XMLElement(parent, fileName);
+		XMLElement xml = new XMLElement(parent, fileName);
 
-		String[] temp;
+
 
 		// -------------------------------------------------------------------------
 		// ---------------------------------- Load Triangle list into triList object
@@ -492,7 +510,8 @@ public class ColladaModel implements PConstants {
 			debug.println();
 
 		}
-
+		
+		triangleArray = null;
 
 		try {
 			
@@ -579,8 +598,8 @@ public class ColladaModel implements PConstants {
 			}
 
 			debug.println();
-
-			temp = PApplet.splitTokens(triangles.getContent());
+			
+			String[] temp = PApplet.splitTokens(triangles.getContent());
 
 			TriangleList tempTriList;
 
@@ -613,11 +632,11 @@ public class ColladaModel implements PConstants {
 
 			temp = PApplet.splitTokens(geometry[0].getContent());
 
-			Point3D tempVert;
+			PVector tempVert;
 
 			for (int i = 0; i < temp.length; i += 3) {
 
-				tempVert = new Point3D(
+				tempVert = new PVector(
 						Float.valueOf(temp[i]).floatValue(),
 						-Float.valueOf(temp[i + 1]).floatValue(), 
 						Float.valueOf(temp[i + 2]).floatValue()
@@ -633,11 +652,11 @@ public class ColladaModel implements PConstants {
 
 			temp = PApplet.splitTokens(geometry[1].getContent());
 
-			Normal3D tempNormals;
+			PVector tempNormals;
 
 			for (int i = 0; i < temp.length; i += 3) {
 
-				tempNormals = new Normal3D(
+				tempNormals = new PVector(
 						Float.valueOf(temp[i]).floatValue(),
 						-Float.valueOf(temp[i + 1]).floatValue(), 
 						Float.valueOf(temp[i + 2]).floatValue());
@@ -697,7 +716,11 @@ public class ColladaModel implements PConstants {
 
 				debug.println(name + " = " + content);
 
-				temp = PApplet.splitTokens(content);
+				if (content != null) 
+					{
+					temp = PApplet.splitTokens(content);
+					}
+					
 
 				if (name.equals("emission")) {
 
@@ -856,9 +879,9 @@ public class ColladaModel implements PConstants {
 	// -------------------------------- The arrow that appears in the drawNormal
 	// -------------------------------------------------------------------------
 
-	void arrow(Point3D p, Normal3D n, float l) {
+	void arrow(PVector p, PVector n, float l) {
 
-		parent.line(p.x, p.y, p.z, p.x + (n.nx * l), p.y + (n.ny * l), p.z + (n.nz * l));
+		parent.line(p.x, p.y, p.z, p.x + (n.x * l), p.y + (n.y * l), p.z + (n.z * l));
 
 	}
 
@@ -868,11 +891,11 @@ public class ColladaModel implements PConstants {
 
 	void setBoundingBox() {
 
-		Point3D[] tempPoints3D = new Point3D[vertVector.size()];
+		PVector[] tempPoints3D = new PVector[vertVector.size()];
 
 		for (int i = 0; i < vertVector.size(); i++) {
 
-			tempPoints3D[i] = (Point3D) vertVector.elementAt(i);
+			tempPoints3D[i] = (PVector) vertVector.elementAt(i);
 
 		}
 
@@ -985,43 +1008,7 @@ public class ColladaModel implements PConstants {
 
 	}
 
-	public void drawMode(int _mode) {
-
-		this.mode = _mode;
-
-		switch (mode) {
-
-		case 16:
-			debug.println("draw mode:\t\tPOINTS");
-			break;
-
-		case 32:
-			debug.println("draw mode:\t\tLINES");
-			break;
-
-		case 256:
-			debug.println("draw mode:\t\tPOLYGON");
-			break;
-
-		case 64:
-			debug.println("draw mode:\t\tTRIANGLES");
-			break;
-
-		case 65:
-			debug.println("draw mode:\t\tTRIANGLE_STRIP");
-			break;
-
-		case 128:
-			debug.println("draw mode:\t\tQUADS");
-			break;
-
-		case 129:
-			debug.println("draw mode:\t\tQUAD_STRIP");
-			break;
-
-		}
-	}
-
+	
 	// -----------------------------------------------------------------------
 	// --------------------------------------- Functions for library expansion
 	// ------------------------------ (not doing anything with this stuff yet)
