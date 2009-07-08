@@ -14,9 +14,9 @@ import processing.core.*;
 
 public class BoundingBox{
 
-  Point3D minBB = new Point3D();
-  Point3D maxBB = new Point3D();
-  Point3D centerBB = new Point3D();
+	PVector minBB = new PVector();
+	PVector maxBB = new PVector();
+	PVector centerBB = new PVector();
   float width, height, depth;
 
 
@@ -24,7 +24,7 @@ public class BoundingBox{
 
   }
 
-  public void setBoundingBox(Point3D[] p){
+  public void setBoundingBox(PVector[] p){
 
     for(int i = 0; i < p.length; i++){
 
@@ -53,9 +53,9 @@ public class BoundingBox{
 
   }
 
-  Point3D minSize (Point3D a, Point3D b){
+  PVector minSize (PVector a, PVector b){
 	  
-	  Point3D test = new Point3D();
+	  PVector test = new PVector();
 	  
 	  test.x = Math.min (a.x, b.x);
 	  test.y = Math.min (a.y, b.y);
@@ -65,9 +65,9 @@ public class BoundingBox{
 	  
   }
   
-  Point3D maxSize (Point3D a, Point3D b){
+  PVector maxSize (PVector a, PVector b){
 	  
-	  Point3D test = new Point3D();
+	  PVector test = new PVector();
 	  
 	  test.x = Math.max (a.x, b.x);
 	  test.y = Math.max (a.y, b.y);
